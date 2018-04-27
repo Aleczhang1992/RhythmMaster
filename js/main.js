@@ -195,7 +195,7 @@ export default class Main {
     e.preventDefault()
     let x = e.touches[0].clientX
     let y = e.touches[0].clientY
-    console.log("xxxx", x,y)
+    // console.log("xxxx", x,y)
     this.pressY = y
     if (y >= window.innerHeight - 120){
       this.pressIndex=Math.floor((x-30)/85);
