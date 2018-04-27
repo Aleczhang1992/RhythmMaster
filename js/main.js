@@ -12,6 +12,8 @@ import { roadPressPosition } from './base/roadPosition'
 
 let ctx = canvas.getContext('2d')//获取了canvas的上下文,adapter中调用生成的上屏画布
 let databus = new DataBus()//创建了一个全局数据实例
+let pauseImg ='images/pause.png'
+
 
 const speed = 2//游戏下落速度
 /**
@@ -31,8 +33,11 @@ export default class Main {
     this.pressY=0
     this.pressKeyAreaHandler = this.pressKeyAreaHandler.bind(this)
     this.hidePressBGHandler = this.hidePressBGHandler.bind(this)
+    this.pauseAreaHandler = this.pauseAreaHandler.bind(this)
     this.restart()
-    
+    databus.gameOver = true
+
+
   }
 
 
@@ -42,6 +47,7 @@ export default class Main {
  
   restart() {
     //重置全局数据
+
     databus.reset()
     //禁用游戏结束后的触摸事件处理
     // canvas.removeEventListener(
@@ -50,6 +56,7 @@ export default class Main {
     // )
     canvas.addEventListener('touchstart', this.pressKeyAreaHandler)
     canvas.addEventListener('touchend', this.hidePressBGHandler)
+    canvas.addEventListener('touchstart', this.pauseAreaHandler)
     //实例游戏内容对象
     this.bg = new BackGround(ctx)
     this.msgImg = new MessageImage(ctx)
@@ -59,6 +66,11 @@ export default class Main {
     this.pressbg3 = new PressBackGround(ctx)
     this.gameinfo = new GameInfo()
     this.music = new Music()
+    this.music.playBgm()
+    this.music.musicOver(function () {
+      databus.gameOver = true
+
+    })
     //为循环绑定this
     this.bindLoop = this.loop.bind(this)
     this.hasEventBind = false
@@ -71,14 +83,32 @@ export default class Main {
       canvas
     )
   }
+  //游戏暂停逻辑
+  pauseGame(){
+    if (databus.gamePause){
+      //恢复
+      this.music.playBgm()
+      pauseImg = 'images/pause.png'
+    }else{
+      //暂停游戏
+      this.music.pauseBgm()
+      pauseImg = 'images/resume.png'
 
+    }
+
+    databus.gamePause = !databus.gamePause
+
+  }
   /**
    *3. 随着帧数变化的敌机生成逻辑
    * 帧数取模定义成生成的频率
    */
   enemyGenerate() {
     let enemy = databus.pool.getItemByClass('enemy', Enemy)
-    if (databus.frame % 120 === 0 ) {
+    let generateArr=[50,80,120,30];
+     let generateIndex = Math.floor(Math.random() * 3)
+    if (databus.frame % generateArr[generateIndex] === 0 ) {
+
       enemy.init(speed)
       databus.enemys.push(enemy)
     } 
@@ -93,10 +123,17 @@ export default class Main {
     for (let i = 0, il = databus.enemys.length; i < il; i++) {
       let enemy = databus.enemys[i]
 
-      
+
       if (!enemy.isPlaying && enemy.isCollideWith(this['pressbg' + enemy.roadIndex])) {
         enemy.playAnimation()
         that.music.playExplosion()
+        wx.vibrateShort({
+          success: function () { console.log('success')},
+          fail: function () { console.log('fail')},
+          complete: function () {
+            console.log('complete')
+          },
+        })
         enemy.visible = false
         this.msgImg.changeSrc('images/perfect.png')
         this.msgImg.visible = true
@@ -112,7 +149,19 @@ export default class Main {
     }
 
   }
+  pauseAreaHandler(e){
+    e.preventDefault()
 
+    let x = e.touches[0].clientX
+    let y = e.touches[0].clientY
+
+    let pauseArea = this.gameinfo.pauseArea
+    if (x >= pauseArea.startX
+      && x <= pauseArea.endX
+      && y >= pauseArea.startY
+      && y <= pauseArea.endY)
+      this.pauseGame()
+  }
   /***
    * 5.游戏结束后的触摸事件处理逻辑
    * ***/ 
@@ -194,10 +243,20 @@ export default class Main {
       }
     })
 
-    this.gameinfo.renderGameScore(ctx, databus.score)
+    if (!databus.gameOver){
+      //游戏进行中展示
+      this.gameinfo.renderGameScore(ctx, databus.score)
+      this.gameinfo.renderPause(ctx, pauseImg)
+    }
+
 
     // 游戏结束停止帧循环
     if (databus.gameOver) {
+       canvas.removeEventListener(
+        'touchstart',
+        this.pauseAreaHandler
+      )
+      this.bg.changeSrc('images/bg.png')
       this.gameinfo.renderGameOver(ctx, databus.score)
 
       if (!this.hasEventBind) {
@@ -213,7 +272,7 @@ export default class Main {
    * ***/ 
   update() {
     //游戏结束
-    if (databus.gameOver)
+    if (databus.gameOver || databus.gamePause)
       return;
     
     this.bg.update()

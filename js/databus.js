@@ -24,6 +24,7 @@ export default class DataBus {
     this.enemys     = []
     this.animations = []
     this.gameOver   = false
+    this.gamePause = false
   }
 
   /**
