@@ -11,8 +11,10 @@ export default class Music {
     instance = this
 
     this.bgmAudio = new Audio()
-    this.bgmAudio.loop = true
-    this.bgmAudio.src = 'http://knowapp.b0.upaiyun.com/ss/bigevent/S9ryne %20-%20命.mp3'
+    this.bgmAudio =wx.createInnerAudioContext()
+    this.bgmAudio.loop = false
+    // this.bgmAudio.src = 'http://knowapp.b0.upaiyun.com/ss/bigevent/S9ryne %20-%20命.mp3'
+    
 
     this.shootAudio     = new Audio()
     // this.shootAudio.src = 'audio/S9ryne  - 命.mp3'
@@ -20,13 +22,19 @@ export default class Music {
     this.boomAudio     = new Audio()
     this.boomAudio.src = 'audio/boom.mp3'
 
-    this.playBgm()
+    // this.playBgm()
+   
   }
 
   playBgm() {
     this.bgmAudio.play()
   }
-
+  stopBgm(){
+    this.bgmAudio.stop()
+  }
+  pauseBgm() {
+    this.bgmAudio.pause()
+  }
   playShoot() {
     this.shootAudio.currentTime = 0
     this.shootAudio.play()
@@ -35,5 +43,12 @@ export default class Music {
   playExplosion() {
     this.boomAudio.currentTime = 0
     this.boomAudio.play()
+  }
+ 
+  musicOver(callback){
+    this.bgmAudio.onEnded(function(){
+      callback()
+    })
+
   }
 }
