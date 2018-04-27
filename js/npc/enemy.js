@@ -1,5 +1,5 @@
 import Animation from '../base/animation'
-import {fourRoadPosition} from '../base/roadPosition'
+import {fourRoadPositionCreate} from '../base/roadPosition'
 import DataBus   from '../databus'
 
 const ENEMY_IMG_SRC = 'images/o.png'
@@ -17,19 +17,21 @@ function rnd(start, end){
 }
 
 export default class Enemy extends Animation {
+
   constructor() {
     super(ENEMY_IMG_SRC, ENEMY_WIDTH, ENEMY_HEIGHT)
     this.roadIndex=0
     this.initExplosionAnimation()
+    
   }
-
+  // aa = 1
   init(speed) {
     //生成音块位置
-   
+  //  this.aa = aa++
     let roadIndex = Math.floor(Math.random() * 4)
     this.roadIndex = roadIndex
-    this.x = fourRoadPosition[roadIndex].start.x
-    this.y = fourRoadPosition[roadIndex].start.y
+    this.x = fourRoadPositionCreate(0,roadIndex).x
+    this.y = fourRoadPositionCreate(0,roadIndex).y
     this[__.speed] = speed
 
     this.visible = true
@@ -52,15 +54,17 @@ export default class Enemy extends Animation {
   // 每一帧更新子弹位置
   update() {
     this.y += this[__.speed]
-    if(this.roadIndex==0){
-      this.x -= 0.25
-    } else if (this.roadIndex == 1) {
-      this.x -= 0.1
-    }else if (this.roadIndex == 2) {
-      this.x += 0.1
-    } else if (this.roadIndex == 3){
-      this.x += 0.25
-    }
+    // if(this.roadIndex==0){
+    //   this.x -= 0.25
+    // } else if (this.roadIndex == 1) {
+    //   this.x -= 0.1
+    // }else if (this.roadIndex == 2) {
+    //   this.x += 0.1
+    // } else if (this.roadIndex == 3){
+    //   this.x += 0.25
+    // }
+
+    this.x = fourRoadPositionCreate(this.y, this.roadIndex).x
     // 对象回收
     
     if (this.y > window.innerHeight)
