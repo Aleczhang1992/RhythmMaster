@@ -1,16 +1,15 @@
 import Sprite from '../base/sprite'
-
+import { fourRoadPositionCreate} from '../base/roadPosition'
 const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 
 const PRESS_BG_IMG_SRC = 'images/pressBg.png'
-const PRESS_BG_WIDTH = 72
-const PRESS_BG_HEIGHT = 80
+const PRESS_BG_WIDTH = 72 * (screenWidth/357)
+const PRESS_BG_HEIGHT = 80 * (screenHeight / 667)
 
 /**
  * 轨道按下闪光背景
  */
-
 
 export default class PressBackGround extends Sprite {
   constructor() {
@@ -21,9 +20,19 @@ export default class PressBackGround extends Sprite {
     // 初始化事件监听
     this.initEvent()
   }
+  num = 0
   initPosition(positionIndex=0){
-    this.x = (screenWidth - 55) / 4 - this.width / 2 + PRESS_BG_WIDTH * positionIndex
+    if(!this.x){
+      this.x = fourRoadPositionCreate(positionIndex, 0, 0,screenHeight - this.height - 20).x
+      
+    }else{
+      this.x= this.x
+    }
     this.y = screenHeight - this.height - 20
+    if(this.num<100){
+      this.num++
+    }
+    
   }
   
   update() {

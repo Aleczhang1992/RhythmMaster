@@ -13,7 +13,7 @@ import { roadPressPosition } from './base/roadPosition'
 let ctx = canvas.getContext('2d')//获取了canvas的上下文,adapter中调用生成的上屏画布
 let databus = new DataBus()//创建了一个全局数据实例
 
-
+const speed = 2//游戏下落速度
 /**
  * 游戏主函数
  */
@@ -79,7 +79,7 @@ export default class Main {
   enemyGenerate() {
     let enemy = databus.pool.getItemByClass('enemy', Enemy)
     if (databus.frame % 120 === 0 ) {
-      enemy.init(2)
+      enemy.init(speed)
       databus.enemys.push(enemy)
     } 
   }
