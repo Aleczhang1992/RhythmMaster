@@ -210,6 +210,17 @@ export default class Main {
     this.pressbg3.initPosition(3)
 
   }
+  hidePressBGHandler(e) {
+    e.preventDefault()
+
+    if (this.pressY >= window.innerHeight - 120) {
+      this['pressbg' + this.pressIndex].visible = false
+      // this.msgImg.visible = false
+      
+    }
+
+
+  }  
   /***
    * 按键点击判断
    * ****/
@@ -223,20 +234,17 @@ export default class Main {
       this.pressIndex=Math.floor((x-30)/85);
       this['pressbg' + this.pressIndex].visible = true
     }
-    
-    
-  }
-  hidePressBGHandler(e) {
-    e.preventDefault()
-
-    if (this.pressY >= window.innerHeight - 120) {
-      this['pressbg' + this.pressIndex].visible = false
-      // this.msgImg.visible = false
+    setTimeout( (e) => {
+      if (this.pressY >= window.innerHeight - 120) {
+        this['pressbg' + this.pressIndex].visible = false
+        // this.msgImg.visible = false
       
-    }
-
-
+      }
+    }, 100);
+    // setTimeout(this.hidePressBGHandler, 100);
+    
   }
+
   /**
    * 6.canvas重绘函数
    * 每一帧重新绘制所有的需要展示的元素
