@@ -33,28 +33,32 @@ export default class Main {
     this.hidePressBGHandler = this.hidePressBGHandler.bind(this)
     this.pauseAreaHandler = this.pauseAreaHandler.bind(this)
     this.restart()
-    databus.gameOver = true
-    
-    
+    // databus.gameOver = true
   }
 
 
   /***
-   * 2. 重置游戏方法
+   * 开始游戏方法
    * ****/
- 
-  restart() {
-    //重置全局数据
-    
-    databus.reset()
-    //禁用游戏结束后的触摸事件处理
-    // canvas.removeEventListener(
-    //   'touchstart',
-    //   this.touchHandler
-    // )
+  start(){
+    databus.gameStart=true
+    this.music.playBgm()
+    canvas.addEventListener('touchstart', this.pauseAreaHandler)
     canvas.addEventListener('touchstart', this.pressKeyAreaHandler)
     canvas.addEventListener('touchend', this.hidePressBGHandler)
-    canvas.addEventListener('touchstart', this.pauseAreaHandler)
+  }
+   /***
+   * 重置游戏方法
+   * ****/
+  restart() {
+    //重置全局数据
+    databus.reset()
+    //禁用游戏结束后的触摸事件处理
+    canvas.removeEventListener(
+      'touchstart',
+      this.touchHandler
+    )
+    
     //实例游戏内容对象
     this.bg = new BackGround(ctx)
     this.msgImg = new MessageImage(ctx)
@@ -64,7 +68,7 @@ export default class Main {
     this.pressbg3 = new PressBackGround(ctx)
     this.gameinfo = new GameInfo()
     this.music = new Music()
-    this.music.playBgm()
+    
     this.music.musicOver(function () {
       databus.gameOver = true
       
@@ -125,13 +129,7 @@ export default class Main {
       if (!enemy.isPlaying && enemy.isCollideWith(this['pressbg' + enemy.roadIndex])) {
         enemy.playAnimation()
         that.music.playExplosion()
-        wx.vibrateShort({
-          success: function () { console.log('success')},
-          fail: function () { console.log('fail')},
-          complete: function () { 
-            console.log('complete')
-          },
-        })
+        wx.vibrateShort()
         enemy.visible = false
         this.msgImg.changeSrc('images/perfect.png')
         this.msgImg.visible = true
@@ -154,6 +152,7 @@ export default class Main {
     let y = e.touches[0].clientY
 
     let pauseArea = this.gameinfo.pauseArea
+    console.log("this.gameinfo", this.gameinfo)
     if (x >= pauseArea.startX
       && x <= pauseArea.endX
       && y >= pauseArea.startY
@@ -168,14 +167,20 @@ export default class Main {
 
     let x = e.touches[0].clientX
     let y = e.touches[0].clientY
-
     let area = this.gameinfo.btnArea
     //点击在按钮上，则重新开始
     if (x >= area.startX
       && x <= area.endX
       && y >= area.startY
-      && y <= area.endY)
-      this.restart()
+      && y <= area.endY){
+        if(databus.gameover){
+          console.log("xxx")
+          this.restart()
+        }else{
+          this.start()
+        }
+      }
+      
 
     
   }
@@ -223,30 +228,37 @@ export default class Main {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     this.bg.render(ctx)    
-    this.msgImg.drawToCanvas(ctx)  
-    //drawToCanvas在基础元素中封装的绘制到画布的方法
-    this.pressbg0.drawToCanvas(ctx)
-    this.pressbg1.drawToCanvas(ctx)
-    this.pressbg2.drawToCanvas(ctx)
-    this.pressbg3.drawToCanvas(ctx)
-
-    databus.bullets
-      .concat(databus.enemys)
-      .forEach((item) => {
-        item.drawToCanvas(ctx)
-    })
-    databus.animations.forEach((ani) => {
-      if (ani.isPlaying) {
-        ani.aniRender(ctx)
-      }
-    })
     
-    if (!databus.gameOver){
+    if (!databus.gameOver && databus.gameStart){
       //游戏进行中展示
+      
       this.gameinfo.renderGameScore(ctx, databus.score)
       this.gameinfo.renderPause(ctx, pauseImg)
+      
     }
-    
+    if (!databus.gameStart){
+      //游戏开始界面
+      this.bg.changeSrc('images/bg.png')
+      this.gameinfo.renderGameStart(ctx)
+    } else if (!databus.gameOver){
+      this.bg.changeSrc('images/BG_02.png')
+      this.msgImg.drawToCanvas(ctx)
+      //drawToCanvas在基础元素中封装的绘制到画布的方法
+      this.pressbg0.drawToCanvas(ctx)
+      this.pressbg1.drawToCanvas(ctx)
+      this.pressbg2.drawToCanvas(ctx)
+      this.pressbg3.drawToCanvas(ctx)
+      databus.bullets
+        .concat(databus.enemys)
+        .forEach((item) => {
+          item.drawToCanvas(ctx)
+        })
+      databus.animations.forEach((ani) => {
+        if (ani.isPlaying) {
+          ani.aniRender(ctx)
+        }
+      })
+    }
 
     // 游戏结束停止帧循环
     if (databus.gameOver) {
@@ -257,6 +269,13 @@ export default class Main {
       this.bg.changeSrc('images/bg.png')
       this.gameinfo.renderGameOver(ctx, databus.score)
 
+      if (!this.hasEventBind) {
+        this.hasEventBind = true
+        this.touchHandler = this.touchEventHandler.bind(this)
+        canvas.addEventListener('touchstart', this.touchHandler)
+      }
+    }
+    if (!databus.gameStart){
       if (!this.hasEventBind) {
         this.hasEventBind = true
         this.touchHandler = this.touchEventHandler.bind(this)
