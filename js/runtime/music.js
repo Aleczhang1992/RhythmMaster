@@ -24,7 +24,7 @@ export default class Music {
   }
 
   playBgm() {
-    this.bgmAudio.play()
+    // this.bgmAudio.play()
   }
 
   playShoot() {

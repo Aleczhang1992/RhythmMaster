@@ -13,7 +13,6 @@ import { roadPressPosition } from './base/roadPosition'
 let ctx = canvas.getContext('2d')//获取了canvas的上下文,adapter中调用生成的上屏画布
 let databus = new DataBus()//创建了一个全局数据实例
 
-
 /**
  * 游戏主函数
  */
@@ -62,7 +61,7 @@ export default class Main {
     //为循环绑定this
     this.bindLoop = this.loop.bind(this)
     this.hasEventBind = false
-
+    console.log('restart');
     // 清除上一局的动画
     window.cancelAnimationFrame(this.aniId);
     //不停地刷帧更新位置信息推动所有对象运动，每个对象在每一帧都有新的位置，连起来就是动画
@@ -78,6 +77,7 @@ export default class Main {
    */
   enemyGenerate() {
     let enemy = databus.pool.getItemByClass('enemy', Enemy)
+    // enemy.changeSrc('images/good.png')
     if (databus.frame % 120 === 0 ) {
       enemy.init(2)
       databus.enemys.push(enemy)
@@ -95,11 +95,29 @@ export default class Main {
 
       
       if (!enemy.isPlaying && enemy.isCollideWith(this['pressbg' + enemy.roadIndex])) {
+        var level = enemy.isCollideWith(this['pressbg' + enemy.roadIndex]);
         enemy.playAnimation()
         that.music.playExplosion()
         enemy.visible = false
-        this.msgImg.changeSrc('images/perfect.png')
+        if(level == 1)
+        {
+         this.msgImg.changeSrc('images/good.png')
+         
+        }
+        if(level == 2)
+        {
+         this.msgImg.changeSrc('images/perfect.png')
+         
+        }
+        if(level == 3)
+        {
+         this.msgImg.changeSrc('images/fantastic.png')
+         
+        }                
         this.msgImg.visible = true
+          setTimeout(()=>{
+            this.msgImg.visible = false
+          },1000)        
         databus.score += 1
         break
       } else if (enemy.y > 600 && enemy.visible){
@@ -162,7 +180,7 @@ export default class Main {
 
     if (this.pressY >= window.innerHeight - 120) {
       this['pressbg' + this.pressIndex].visible = false
-      this.msgImg.visible = false
+      // this.msgImg.visible = false
       
     }
 

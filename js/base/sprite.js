@@ -45,10 +45,39 @@ export default class Sprite {
 
     if ( !this.visible || !sp.visible )
       return false
-
-    return !!(   spX >= this.x
+    if (spX < this.x || spX > this.x + this.width)
+    {
+      return false
+    }
+    if(spX >= this.x
               && spX <= this.x + this.width
               && spY >= this.y
-              && spY <= this.y + this.height  )
+              && spY <= this.y + this.height)
+    {
+      let spYUp = sp.y + sp.height/6;
+      let spYMiddle = sp.y + sp.height/2;
+      let spYDown = sp.y + sp.height*5/6;
+      let yCenter = this.y + this.height / 2;
+      if(yCenter >= sp.y
+              && yCenter <= sp.y + sp.height/3 )
+      {
+        return 1;
+      }
+      if(yCenter > sp.y + sp.height/3
+              && yCenter < sp.y + sp.height*2/3 )
+      {
+        return 2;
+      }
+      if(yCenter >= sp.y + sp.height*2/3
+              && yCenter <= sp.y + sp.height )
+      {
+        return 3;
+      }
+
+    }
+    // return !!(   spX >= this.x
+    //           && spX <= this.x + this.width
+    //           && spY >= this.y
+    //           && spY <= this.y + this.height  )
   }
 }
