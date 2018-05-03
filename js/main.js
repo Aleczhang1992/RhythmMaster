@@ -14,6 +14,9 @@ let ctx = canvas.getContext('2d')//获取了canvas的上下文,adapter中调用�
 let databus = new DataBus()//创建了一个全局数据实例
 let pauseImg ='images/pause.png'
 
+
+
+const speed = 2//游戏下落速度
 /**
  * 游戏主函数
  */
@@ -33,7 +36,6 @@ export default class Main {
     this.hidePressBGHandler = this.hidePressBGHandler.bind(this)
     this.pauseAreaHandler = this.pauseAreaHandler.bind(this)
     this.restart()
-    // databus.gameOver = true
   }
 
 
@@ -71,12 +73,12 @@ export default class Main {
     
     this.music.musicOver(function () {
       databus.gameOver = true
-      
+
     })
     //为循环绑定this
     this.bindLoop = this.loop.bind(this)
     this.hasEventBind = false
-
+    console.log('restart');
     // 清除上一局的动画
     window.cancelAnimationFrame(this.aniId);
     //不停地刷帧更新位置信息推动所有对象运动，每个对象在每一帧都有新的位置，连起来就是动画
@@ -95,9 +97,9 @@ export default class Main {
       //暂停游戏
       this.music.pauseBgm()
       pauseImg = 'images/resume.png'
-           
+
     }
-    
+
     databus.gamePause = !databus.gamePause
 
   }
@@ -107,11 +109,12 @@ export default class Main {
    */
   enemyGenerate() {
     let enemy = databus.pool.getItemByClass('enemy', Enemy)
+
     let generateArr=[50,80,120,30];
      let generateIndex = Math.floor(Math.random() * 3)
     if (databus.frame % generateArr[generateIndex] === 0 ) {
-     
-      enemy.init(2)
+
+      enemy.init(speed)
       databus.enemys.push(enemy)
     } 
   }
@@ -125,14 +128,32 @@ export default class Main {
     for (let i = 0, il = databus.enemys.length; i < il; i++) {
       let enemy = databus.enemys[i]
 
-    
+
       if (!enemy.isPlaying && enemy.isCollideWith(this['pressbg' + enemy.roadIndex])) {
+        var level = enemy.isCollideWith(this['pressbg' + enemy.roadIndex]);
         enemy.playAnimation()
         that.music.playExplosion()
         wx.vibrateShort()
         enemy.visible = false
-        this.msgImg.changeSrc('images/perfect.png')
+        if(level == 1)
+        {
+         this.msgImg.changeSrc('images/good.png')
+         
+        }
+        if(level == 2)
+        {
+         this.msgImg.changeSrc('images/perfect.png')
+         
+        }
+        if(level == 3)
+        {
+         this.msgImg.changeSrc('images/fantastic.png')
+         
+        }                
         this.msgImg.visible = true
+          setTimeout(()=>{
+            this.msgImg.visible = false
+          },1000)        
         databus.score += 1
         break
       } else if (enemy.y > 600 && enemy.visible){
@@ -214,7 +235,7 @@ export default class Main {
 
     if (this.pressY >= window.innerHeight - 120) {
       this['pressbg' + this.pressIndex].visible = false
-      this.msgImg.visible = false
+      // this.msgImg.visible = false
       
     }
 
@@ -228,7 +249,6 @@ export default class Main {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     this.bg.render(ctx)    
-    
     if (!databus.gameOver && databus.gameStart){
       //游戏进行中展示
       
@@ -259,6 +279,7 @@ export default class Main {
         }
       })
     }
+
 
     // 游戏结束停止帧循环
     if (databus.gameOver) {

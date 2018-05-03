@@ -616,7 +616,10 @@
 	var hasInitWebGLContextConstructor = false
 
 	function Canvas() {
+	// 此时创建的 canvas 是一个上屏 Canvas，已经显示在了屏幕上，且与屏幕等宽等高。
+
 	  var canvas = wx.createCanvas()
+console.log(canvas.width, canvas.height)
 
 	  canvas.type = 'canvas'
 
