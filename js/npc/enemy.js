@@ -1,15 +1,14 @@
 import Animation from '../base/animation'
-import {fourRoadPosition} from '../base/roadPosition'
+import { fourRoadPositionCreate, getScale} from '../base/roadPosition'
 import DataBus   from '../databus'
 
 const ENEMY_IMG_SRC = 'images/o.png'
-const ENEMY_WIDTH   = 60
-const ENEMY_HEIGHT  = 60
+const ENEMY_WIDTH   = 100
+const ENEMY_HEIGHT  = 100
 
 const __ = {
   speed: Symbol('speed')
 }
-
 let databus = new DataBus()
 
 function rnd(start, end){
@@ -17,19 +16,21 @@ function rnd(start, end){
 }
 
 export default class Enemy extends Animation {
+
   constructor() {
-    super(ENEMY_IMG_SRC, ENEMY_WIDTH, ENEMY_HEIGHT)
+    super(ENEMY_IMG_SRC, 0, 0)
     this.roadIndex=0
     this.initExplosionAnimation()
+    
   }
 
   init(speed) {
     //生成音块位置
-   
+
     let roadIndex = Math.floor(Math.random() * 4)
     this.roadIndex = roadIndex
-    this.x = fourRoadPosition[roadIndex].start.x
-    this.y = fourRoadPosition[roadIndex].start.y
+    this.x = fourRoadPositionCreate(0,roadIndex).x
+    this.y = fourRoadPositionCreate(0,roadIndex).y
     this[__.speed] = speed
 
     this.visible = true
@@ -51,18 +52,17 @@ export default class Enemy extends Animation {
 
   // 每一帧更新子弹位置
   update() {
-    this.y += this[__.speed]
-    if(this.roadIndex==0){
-      this.x -= 0.25
-    } else if (this.roadIndex == 1) {
-      this.x -= 0.1
-    }else if (this.roadIndex == 2) {
-      this.x += 0.1
-    } else if (this.roadIndex == 3){
-      this.x += 0.25
-    }
+    const obj = fourRoadPositionCreate(this.roadIndex, this[__.speed],this.x,this.y)
+    this.x = obj.x
+    this.y = obj.y
     // 对象回收
-    
+    let scale = getScale(this.y)
+    !this.originWidth && (this.originWidth = ENEMY_WIDTH)
+    this.width = this.originWidth * scale
+
+    !this.originHeight && (this.originHeight = ENEMY_HEIGHT)
+    this.height = this.originHeight * scale
+
     if (this.y > window.innerHeight)
       databus.removeEnemey(this)
   }
