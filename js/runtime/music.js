@@ -13,7 +13,7 @@ export default class Music {
     this.bgmAudio = new Audio()
     this.bgmAudio =wx.createInnerAudioContext()
     this.bgmAudio.loop = false
-    // this.bgmAudio.src = 'http://knowapp.b0.upaiyun.com/ss/bigevent/S9ryne %20-%20命.mp3'
+    this.bgmAudio.src = 'http://knowapp.b0.upaiyun.com/ss/bigevent/S9ryne %20-%20命.mp3'
     
 
     this.shootAudio     = new Audio()
@@ -27,8 +27,7 @@ export default class Music {
   }
 
   playBgm() {
-    // this.bgmAudio.play()
-
+    this.bgmAudio.play()
   }
   stopBgm(){
     this.bgmAudio.stop()
