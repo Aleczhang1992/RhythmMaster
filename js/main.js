@@ -108,12 +108,14 @@ export default class Main {
    * 帧数取模定义成生成的频率
    */
   enemyGenerate() {
+    let imgList = ['images/o.png', 'images/o-pink.png', 'images/o-red.png', 'images/o-orange.png', 'images/o-blue.png']
     let enemy = databus.pool.getItemByClass('enemy', Enemy)
-
+    console.log('enemy', enemy);
     let generateArr=[50,80,120,30];
      let generateIndex = Math.floor(Math.random() * 3)
+     let imgIndex = Math.floor(Math.random() * 5)
     if (databus.frame % generateArr[generateIndex] === 0 ) {
-
+      enemy.changeSrc(imgList[imgIndex])
       enemy.init(speed)
       databus.enemys.push(enemy)
     } 
@@ -216,7 +218,7 @@ export default class Main {
   }
   hidePressBGHandler(e) {
     e.preventDefault()
-
+    console.log(">>>>>")
     if (this.pressY >= window.innerHeight - 120) {
       this['pressbg' + this.pressIndex].visible = false
       // this.msgImg.visible = false
@@ -229,6 +231,7 @@ export default class Main {
    * 按键点击判断
    * ****/
   pressKeyAreaHandler(e) {
+
     e.preventDefault()
     let x = e.touches[0].clientX
     let y = e.touches[0].clientY
@@ -238,15 +241,21 @@ export default class Main {
       this.pressIndex=Math.floor((x-30)/85);
       this['pressbg' + this.pressIndex].visible = true
     }
-    setTimeout( (e) => {
-      if (this.pressY >= window.innerHeight - 120) {
-        this['pressbg' + this.pressIndex].visible = false
-        // this.msgImg.visible = false
+    // setTimeout( (e) => {
+    //   if (this.pressY >= window.innerHeight - 120) {
+    //     this['pressbg' + this.pressIndex].visible = false
+    //     // this.msgImg.visible = false
       
-      }
-    }, 100);
-    // setTimeout(this.hidePressBGHandler, 100);
-    
+    //   }
+    // }, 100);
+    console.log("pressKeyAreaHandler", e);
+    // var event = e;
+     setTimeout(() => {
+
+      console.log("setTimeout", this);
+      console.log("e", e);
+
+      this.hidePressBGHandler(e)}, 100);    
   }
 
   /**
